@@ -412,6 +412,15 @@ void Node::WakeupForUpgrade() {
                                            .GetHeader()
                                            .GetBlockNum() +
                                        1);
+    if (BROADCAST_GOSSIP_MODE) {
+      std::vector<Peer> peers;
+      for (const auto& i : *m_mediator.m_DSCommittee) {
+        if (i.second.m_listenPortHost != 0) {
+          peers.emplace_back(i.second);
+        }
+      }
+      P2PComm::GetInstance().InitializeRumorManager(peers);
+    }
 
     auto func = [this]() mutable -> void {
       LOG_EPOCH(INFO, to_string(m_mediator.m_currentEpochNum).c_str(),
